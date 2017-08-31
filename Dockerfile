@@ -32,9 +32,12 @@ RUN cd ~ && \
     cd  dlib/ && \
     python3 setup.py install --yes USE_AVX_INSTRUCTIONS
 
-COPY . /root/app
 WORKDIR /root/app
+
+COPY ./requirements.txt /root/app
 RUN pip3 install -r requirements.txt
+
+COPY . /root/app
 
 EXPOSE 8000
 
