@@ -4,6 +4,7 @@ import scipy.misc
 import numpy as np
 import face_recognition
 import pickle
+import warnings
 from pymongo import MongoClient
 from bson.binary import Binary
 from sanic import Sanic
