@@ -12,7 +12,8 @@ from sanic_cors import CORS
 from tempfile import NamedTemporaryFile
 
 data_set_path = os.environ['BM_IMAGES_DATA_PATH']
-client = MongoClient()
+mongo_host = os.environ['MONGO_HOST']
+client = MongoClient(mongo_host, 27017)
 db = client['bm-platform']
 
 def image_files_in_folder(folder):
