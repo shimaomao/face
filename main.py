@@ -8,6 +8,8 @@ from pymongo import MongoClient
 from bson.binary import Binary
 from sanic import Sanic
 from sanic import response
+from sanic_cors import CORS
+from tempfile import NamedTemporaryFile
 
 data_set_path = os.environ['BM_IMAGES_DATA_PATH']
 client = MongoClient()
@@ -66,6 +68,7 @@ def test_image(image_to_check, tolerance=0.6, show_distance=False):
             return []
 
 app = Sanic()
+CORS(app)
 
 @app.route("/scan", methods=['POST'])
 async def test(request):
@@ -78,8 +81,10 @@ async def test(request):
 
 @app.route("/", methods=['POST'])
 async def test(request):
-    image = request.json['files']['image']
-    result = test_image(image['path'])
+    f = NamedTemporaryFile()
+    f.write(request.files.get('image').body)
+    result = test_image(f.name)
+    f.close()
     return response.json({"result": result})
 
 if __name__ == "__main__":
