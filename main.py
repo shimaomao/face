@@ -64,7 +64,7 @@ def test_image(image_to_check, tolerance=0.6, show_distance=False):
         result = list(distances <= tolerance)
 
         if True in result:
-            return [name for is_match, name, distance in zip(result, known_names, distances) if is_match]
+            return [{"name":name, "distance": distance} for is_match, name, distance in zip(result, known_names, distances) if is_match]
         else:
             return []
 
