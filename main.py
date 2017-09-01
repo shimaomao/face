@@ -10,9 +10,9 @@ from bson.binary import Binary
 from sanic import Sanic
 from sanic import response
 from sanic_cors import CORS
+from urllib.request import urlopen
 from tempfile import NamedTemporaryFile
 
-data_set_path = os.environ['BM_IMAGES_DATA_PATH']
 mongo_host = os.environ['MONGO_HOST']
 client = MongoClient(mongo_host, 27017)
 db = client['bm-platform']
@@ -34,8 +34,16 @@ def scan_known_people(known_people_folder):
                 "$set": {"encodings": Binary(pickle.dumps(encodings[0], protocol=2))}
             }, upsert=True)
 
-def update_data(name, image):
-    print(['yay', name, image])
+def update_data(name=None, image=None):
+    f = NamedTemporaryFile()
+    f.write(urlopen(image).read())
+    img = face_recognition.load_image_file(f.name)
+    encodings = face_recognition.face_encodings(img)
+    updated = db.imageencodings.update_one({"name": name}, {
+        "$set": {"encodings": Binary(pickle.dumps(encodings[0], protocol=2))}
+    }, upsert=True)
+    print(updated)
+    f.close()
 
 def test_image(image_to_check, tolerance=0.6, show_distance=False):
     unknown_image = face_recognition.load_image_file(image_to_check)
@@ -72,13 +80,9 @@ def test_image(image_to_check, tolerance=0.6, show_distance=False):
 app = Sanic()
 CORS(app)
 
-@app.route("/scan", methods=['POST'])
-async def test(request):
-    #scan_known_people(data_set_path)
-    return response.json({"ok": True})
-
 @app.route("/update", methods=['POST'])
 async def test(request):
+    update_data(**request.json)
     return response.json({"ok": True})
 
 @app.route("/", methods=['POST'])
