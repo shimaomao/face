@@ -12,6 +12,7 @@ from sanic import response
 from sanic_cors import CORS
 from urllib.request import urlopen
 from tempfile import NamedTemporaryFile
+from PIL import Image, ExifTags
 
 mongo_host = os.environ['MONGO_HOST']
 client = MongoClient(mongo_host, 27017)
@@ -37,6 +38,26 @@ def scan_known_people(known_people_folder):
 def update_data(name=None, image=None):
     f = NamedTemporaryFile()
     f.write(urlopen(image).read())
+    image = Image.open(f.name)
+    for orientation in ExifTags.TAGS.keys():
+        if ExifTags.TAGS[orientation]=='Orientation':
+            break
+
+    try:
+        exif = dict(image._getexif().items())
+
+        if exif[orientation] == 3:
+            image = image.rotate(180, expand=True)
+        elif exif[orientation] == 6:
+            image = image.rotate(270, expand=True)
+        elif exif[orientation] == 8:
+            image = image.rotate(90, expand=True)
+    except:
+        pass
+
+    image.save(f.name, 'JPEG')
+    image.close()
+
     img = face_recognition.load_image_file(f.name)
     encodings = face_recognition.face_encodings(img)
     updated = db.imageencodings.update_one({"name": name}, {
