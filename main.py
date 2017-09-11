@@ -106,7 +106,7 @@ async def test(request):
     except:
         pass
 
-    image.save(f.name, 'JPEG')
+    image.save(f.name, image.format)
     image.close()
     result = test_image(f.name)
     f.close()
