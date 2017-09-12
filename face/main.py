@@ -5,6 +5,7 @@ import numpy as np
 import face_recognition
 import pickle
 import warnings
+import settings
 from pymongo import MongoClient
 from bson.binary import Binary
 from sanic import Sanic
@@ -14,9 +15,9 @@ from urllib.request import urlopen
 from tempfile import NamedTemporaryFile
 from PIL import Image, ExifTags
 
-mongo_host = os.environ['MONGO_HOST']
-client = MongoClient(mongo_host, 27017)
-db = client['bm-platform']
+mongo = settings.mongo
+client = MongoClient(mongo.get('host'), mongo.get('port'))
+db = client[mongo.get('db')]
 
 def image_files_in_folder(folder):
     return [os.path.join(folder, f) for f in os.listdir(folder) if re.match(r'.*\.(jpg|jpeg|png)', f, flags=re.I)]
