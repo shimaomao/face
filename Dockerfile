@@ -37,7 +37,7 @@ WORKDIR /root/app
 COPY ./requirements.txt /root/app
 RUN pip3 install -r requirements.txt
 
-COPY . /root/app
+COPY ./face /root/app
 
 EXPOSE 8000
 
