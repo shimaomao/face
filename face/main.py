@@ -91,6 +91,7 @@ async def test(request):
     f = NamedTemporaryFile()
     f.write(request.files.get('image').body)
     image = Image.open(f.name)
+    ext = image.format
     for orientation in ExifTags.TAGS.keys():
         if ExifTags.TAGS[orientation]=='Orientation':
             break
@@ -107,7 +108,7 @@ async def test(request):
     except:
         pass
 
-    image.save(f.name, image.format)
+    image.save(f.name, ext)
     image.close()
     result = test_image(f.name)
     f.close()
