@@ -7,6 +7,7 @@ import pickle
 import warnings
 import settings
 from pymongo import MongoClient
+from pymongo.uri_parser import parse_uri
 from bson.binary import Binary
 from sanic import Sanic
 from sanic import response
@@ -16,8 +17,9 @@ from tempfile import NamedTemporaryFile
 from PIL import Image, ExifTags
 
 mongo = settings.mongo
-client = MongoClient(mongo.get('host'), mongo.get('port'))
-db = client[mongo.get('db')]
+client = MongoClient(mongo.get('uri'))
+dbname = parse_uri(mongo.get('uri')).get('database', 'bm-platform')
+db = client[dbname]
 
 def image_files_in_folder(folder):
     return [os.path.join(folder, f) for f in os.listdir(folder) if re.match(r'.*\.(jpg|jpeg|png)', f, flags=re.I)]
